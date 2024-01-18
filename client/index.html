@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <ul id="messages"></ul>
+    <form action="" id="form">
+        <input type="text" name="chat" id="input" placeholder="escribir mensaje">
+        <button type="submit">Enviar</button>
+    </form>
+
+
+    <script src="https://cdn.socket.io/4.1.1/socket.io.min.js"></script>
+    <script>
+        // Conecta con el servidor Socket.IO
+        const socket = io();
+        const form = document.getElementById('form')
+        const input = document.getElementById('input')
+        const messages = document.getElementById('messages')
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            if(input.value){
+                socket.emit('aver10', input.value)
+                input.value = ''
+            }
+        })
+
+        socket.on('aver10', (msg) => {
+            const item = `<li>${msg}</li>`
+            console.log(msg);
+            messages.insertAdjacentHTML('beforeend', item)
+        })
+
+    
+        // Puedes utilizar 'socket' aquí para enviar o recibir eventos
+    </script>
+</body>
+</html>
