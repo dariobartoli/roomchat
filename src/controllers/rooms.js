@@ -8,7 +8,10 @@ const createRoom = async(req,res) => {
         const nameLower = name.toLowerCase()
         const roomTrue = await RoomModel.find({name: nameLower})
         if(roomTrue.length>0){
-            return res.status(401).json({message: 'name already been use'})
+            return res.status(401).json({message: 'Este nombre de sala ya existe'})
+        }
+        if(name.length > 15){
+            return res.status(401).json({message: 'Excede el limite de caracteres: 15'})
         }
         const roomObject = {
             name: nameLower,
@@ -20,7 +23,7 @@ const createRoom = async(req,res) => {
         const user = await UserModel.findById(req.user.id)
         user.rooms.push(newRoom._id)
         await user.save()
-        return res.status(201).json({message: 'room created', newRoom})
+        return res.status(201).json({message: 'Sala creada', newRoom})
     } catch (error) {
         return res.status(500).json({message: error.message})
     }
@@ -61,16 +64,26 @@ const joinRoom = async(req,res) => {
         const valor = room.members.map((item) => item.toString() === userId)
         const isInRoom = valor.includes(true)
         if(isInRoom){
-            return res.status(401).json({message: 'already is in this room'})
+            return res.status(401).json({message: 'Ya estás en esta sala'})
+        }
+        if(password == undefined && room.password == undefined){
+            room.members.push(userId)
+            user.rooms.push(roomId)
+            await user.save()
+            await room.save()
+            return res.status(200).json({message: 'Ingreso exitoso'})
+        }
+        if(password == undefined){
+            return res.status(401).json({message: "Contraseña vacia"})
         }
         if(password != room.password){
-            return res.status(401).json({message: "password incorrect"})
+            return res.status(401).json({message: "Contraseña incorrecta"})
         }
         room.members.push(userId)
         user.rooms.push(roomId)
         await user.save()
         await room.save()
-        return res.status(200).json({message: 'join successful', room})
+        return res.status(200).json({message: 'Ingreso exitoso', room})
     } catch (error) {
         return res.status(500).json({message: error.message}) 
     }

@@ -11,7 +11,10 @@ const handleMessage = async(req,res) => {
         const user = await UserModel.findById(userId)
         const senderName = user.nickName
         if(room.length == 0){
-            return res.status(403).json({message: "room doesn't exists"})
+            return res.status(403).json({message: "No existe esta sala"})
+        }
+        if(message.length == 0){
+            return res.status(403).json({message: "Mensaje vacio"})
         }
         let newMessage = new MessageModel({message, roomId, user: req.user.id})
         room.history.push(newMessage._id)
