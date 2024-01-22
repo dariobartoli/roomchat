@@ -16,7 +16,8 @@ const createRoom = async(req,res) => {
         const roomObject = {
             name: nameLower,
             password,
-            members: req.user.id
+            members: req.user.id,
+            admin: req.user.id
         }
         const newRoom = new RoomModel(roomObject)
         await newRoom.save()
@@ -89,4 +90,43 @@ const joinRoom = async(req,res) => {
     }
 }
 
-module.exports = {createRoom, getAll, getOne, joinRoom}
+
+const deleteRoom = async(req,res) => {
+    try {
+        const id = req.params.id
+        const userId = req.user.id
+        const room = await RoomModel.findById(id);
+        if(room.admin != userId){
+            return res.status(403).json({message:'No posee permisos para eliminar esta sala'})
+        }
+        await RoomModel.findByIdAndDelete(id)
+        return res.status(200).json({message: "Sala eliminada"})
+    } catch (error) {
+        return res.status(500).json({message: error.message}) 
+    }
+}
+
+const leaveRoom = async(req,res) => {
+    try {
+        const id = req.body.id
+        const userId = req.user.id
+        const room = await RoomModel.findById(id);
+        const user = await UserModel.findById(userId)
+        const inRoom = room.members.filter(item => item.toString() == userId)
+        if(inRoom.length == 0){
+            throw new Error('No perteneces a esta sala')
+        }
+        const filterRoom = room.members.filter(item => item.toString() != userId)
+        room.members = filterRoom
+        await room.save()
+        const filterUserRoom = user.rooms.filter(item => item.toString() != id)
+        user.rooms = filterUserRoom
+        await user.save()
+        return res.status(200).json({message: "Saliste de la sala"})
+    } catch (error) {
+        return res.status(500).json({message: error.message}) 
+    }
+}
+
+
+module.exports = {createRoom, getAll, getOne, joinRoom, deleteRoom, leaveRoom}

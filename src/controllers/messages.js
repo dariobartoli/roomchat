@@ -18,6 +18,8 @@ const handleMessage = async(req,res) => {
         }
         let newMessage = new MessageModel({message, roomId, user: req.user.id})
         room.history.push(newMessage._id)
+        const roomNotification = room.notification + 1
+        room.notification = roomNotification
         await newMessage.save()
         await room.save()
         io.emit(room.name, {message, senderName});

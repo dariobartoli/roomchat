@@ -5,9 +5,10 @@ require('dotenv').config();
 const register = async(req,res) => {
     try {
         let {nickName, password} = req.body
-        let nickNameTrue = await UserModel.find({nickName: nickName})
+        const nickLower = nickName.toLowerCase()
+        let nickNameTrue = await UserModel.find({nickName: nickLower})
         if(nickNameTrue.length > 0){
-          return res.status(409).json({message: "Este nickname no está disponible"})
+          return res.status(409).json({message: "Nickname no disponible"})
         }
         if(nickName.length == 0){
             return res.status(401).json({message: "Nickname vacio"})
@@ -15,7 +16,7 @@ const register = async(req,res) => {
         if(password.length == 0){
             return res.status(401).json({message: "Contraseña vacia"})
         }
-        let newUser = new UserModel({nickName, password})
+        let newUser = new UserModel({nickName: nickLower, password})
         const user = await newUser.save()
         const sanitizedUser = { ...user._doc };
         delete sanitizedUser.password;
@@ -28,10 +29,11 @@ const register = async(req,res) => {
 const login = async(req,res) => {
     try {
         let {nickName, password} = req.body
-        const user = await UserModel.findOne({nickName: nickName}).select('_id nickName password')
-        if(user == null) return res.status(401).json({ message: "No existe el usuario"});
+        const nickLower = nickName.toLowerCase()
+        const user = await UserModel.findOne({nickName: nickLower}).select('_id nickName password')
+        if(user == null) return res.status(401).json({ message: "Usuario o contraseña incorrecta"});
         if(user.password != password){
-            return res.status(403).json({message: "Contraseña incorrecta"})
+            return res.status(403).json({message: "Usuario o contraseña incorrecta"})
         }
         const token = jwt.sign(
             { nickName: user.nickName, id: user._id},

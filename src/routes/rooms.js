@@ -10,5 +10,7 @@ router.use(tokenAuth.userVerify);
 router.get('/:id', roomController.getOne)
 router.post('/', roomController.createRoom)
 router.post('/join', roomController.joinRoom)
+router.delete('/:id', roomController.deleteRoom)
+router.put('/', roomController.leaveRoom)
 
 module.exports = router
