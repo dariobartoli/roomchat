@@ -6,11 +6,6 @@ require("dotenv").config()
 const cors = require('cors');
 app.use(cors());
 
-
-app.get('/', function (req, res) {
-  res.sendFile(process.cwd() + '/client/index.html') // CWD current working directory, es la ruta de donde estás parado
-})
-
 const socketIO = require('socket.io');
 const http = require('http'); 
 
