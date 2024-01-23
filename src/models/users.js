@@ -1,19 +1,27 @@
-const mongoose = require('../config/mongo')
+const mongoose = require("../config/mongo");
+const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     nickName: String,
     password: String,
-    rooms: [{type: mongoose.Schema.Types.ObjectId, ref: "Rooms"}],
-}, {timestamps: true})
+    rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Rooms" }],
+  },
+  { timestamps: true }
+);
 
 userSchema.set("toJSON", {
-    transform: function (doc, ret) {
-      delete ret.__v;
-      delete ret.createdAt;
-      delete ret.updatedAt;
-    },
-  });
+  transform: function (doc, ret) {
+    delete ret.__v;
+    delete ret.createdAt;
+    delete ret.updatedAt;
+  },
+});
 
-const UserModel = mongoose.model('Users', userSchema)
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password); //this.password, la contraseña guardada en el objeto
+};
 
-module.exports = UserModel
+const UserModel = mongoose.model("Users", userSchema);
+
+module.exports = UserModel;

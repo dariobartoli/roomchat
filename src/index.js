@@ -22,9 +22,7 @@ const io = new socketIO.Server(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('an user has connected');
     socket.on('disconnect', () => {
-        console.log('an user has disconnected');
     })
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
